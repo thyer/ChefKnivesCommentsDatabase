@@ -1,4 +1,5 @@
 using ChefKnivesCommentsDatabase;
+using ChefKnivesCommentsDatabase.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System.IO;
@@ -27,18 +28,20 @@ namespace ChefKnivesCommentsTest
         [TestMethod]
         public void RedditCommentReaderCanRetrieveMostRecentComment()
         {
-            RedditCommentReader reader = new RedditCommentReader("r/chefknives");
+            RedditHttpsReader reader = new RedditHttpsReader("chefknives");
             RedditComment comment = reader.GetRecentComments(1).FirstOrDefault();
 
             Assert.IsNotNull(comment);
             Assert.IsNotNull(comment.Author);
             Assert.IsNotNull(comment.Body);
+            Assert.IsNotNull(comment.Id);
+            Assert.IsNotNull(comment.PostLinkId);
         }
 
         [TestMethod]
         public void RedditCommentReaderCanRetrieveMostRecent10Comments()
         {
-            RedditCommentReader reader = new RedditCommentReader("r/chefknives");
+            RedditHttpsReader reader = new RedditHttpsReader("chefknives");
             var comments = reader.GetRecentComments(10);
 
             Assert.AreEqual(10, comments.Count());
@@ -48,6 +51,24 @@ namespace ChefKnivesCommentsTest
                 Assert.IsNotNull(comment);
                 Assert.IsNotNull(comment.Author);
                 Assert.IsNotNull(comment.Body);
+                Assert.IsNotNull(comment.Id);
+                Assert.IsNotNull(comment.PostLinkId);
+            }
+        }
+
+        [TestMethod]
+        public void AllRedditCommentsShouldHaveT3InLinkId()
+        {
+            RedditHttpsReader reader = new RedditHttpsReader("chefknives");
+            var comments = reader.GetRecentComments(100);
+
+            Assert.AreEqual(100, comments.Count());
+
+            foreach (RedditComment comment in comments)
+            {
+                Assert.IsNotNull(comment);
+                Assert.IsNotNull(comment.PostLinkId);
+                Assert.IsTrue(comment.PostLinkId.Contains("t3_"), $"{comment.PostLinkId} is expected to contain \"t3_\"");
             }
         }
     }

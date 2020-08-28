@@ -7,17 +7,26 @@ namespace ChefKnivesCommentsDatabase
 {
     class Program
     {
+        /// <summary>
+        /// How long to wait between cycles of retrieving posts/comments
+        /// </summary>
+        private static readonly TimeSpan cycleLength = TimeSpan.FromMinutes(30);
+
         static void Main()
         {
-            RedditCommentReader redditReader = new RedditCommentReader(subreddit: "chefknives");
-            using (RedditCommentDatabase redditDatabase = new RedditCommentDatabase(subreddit: "chefknives"))
+            RedditHttpsReader redditReader = new RedditHttpsReader(subreddit: "chefknives");
+            using (RedditContentDatabase redditDatabase = new RedditContentDatabase(subreddit: "chefknives"))
             {
                 while (true)
                 {
-                    Thread.Sleep(1000);
+                    IEnumerable<RedditPost> recentPosts = redditReader.GetRecentPosts(numPosts: 30);
+                    redditDatabase.EnsurePostsInDatabase(recentPosts);
+                    Console.WriteLine($"I added recent posts");
+
                     IEnumerable<RedditComment> recentComments = redditReader.GetRecentComments(numComments: 100);
-                    redditDatabase.AddCollection(recentComments);
-                    Console.WriteLine($"I added {recentComments.Count()} comments");
+                    redditDatabase.EnsureCommentsInDatabase(recentComments);
+                    Console.WriteLine($"I added recent comments");
+                    Thread.Sleep(cycleLength);
                 }
             }
         }
