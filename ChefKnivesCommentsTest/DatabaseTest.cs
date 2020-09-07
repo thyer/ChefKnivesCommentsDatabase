@@ -23,16 +23,9 @@ namespace ChefKnivesCommentsTest
 
         public static IConfiguration GetTestConfiguration()
         {
-            var configurationDictionary = new Dictionary<string, string>
-            {
-                {"ConnectionString", "dummy connection string"},
-            };
-
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(configurationDictionary)
+            return new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false, true)
                 .Build();
-
-            return configuration;
         }
     }
 
