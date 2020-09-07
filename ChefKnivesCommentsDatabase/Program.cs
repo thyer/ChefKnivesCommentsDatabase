@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -12,10 +13,21 @@ namespace ChefKnivesCommentsDatabase
         /// </summary>
         private static readonly TimeSpan cycleLength = TimeSpan.FromMinutes(30);
 
+        private static IConfigurationRoot _configuration;
+
         static void Main()
         {
+            var initialConfiguration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false, true)
+                .Build();
+
+            _configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false, true)
+                .AddJsonFile(initialConfiguration["SecretsFile"], false, true)
+                .Build();
+
             RedditHttpsReader redditReader = new RedditHttpsReader(subreddit: "chefknives");
-            using (RedditContentDatabase redditDatabase = new RedditContentDatabase(subreddit: "chefknives"))
+            using (RedditContentDatabase redditDatabase = new RedditContentDatabase(_configuration, subreddit: "chefknives"))
             {
                 while (true)
                 {
