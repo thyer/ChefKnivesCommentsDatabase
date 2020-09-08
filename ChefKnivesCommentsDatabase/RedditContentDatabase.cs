@@ -1,4 +1,5 @@
 ﻿using ChefKnivesCommentsDatabase.Utility;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
@@ -9,15 +10,15 @@ namespace ChefKnivesCommentsDatabase
     public class RedditContentDatabase : IDisposable
     {
         private readonly string subreddit;
-        private static readonly string ConnectionString = Environment.GetEnvironmentVariable("connectionString");
-        private readonly MongoClient mongoClient = new MongoClient(ConnectionString);
+        private readonly MongoClient mongoClient;
         private const string commentsCollectionName = "comments";
         private const string postsCollectionName = "posts";
         private readonly DatabaseCache<RedditComment> commentCache = new DatabaseCache<RedditComment>(10000);
         private readonly DatabaseCache<RedditPost> postCache = new DatabaseCache<RedditPost>(1000);
 
-        public RedditContentDatabase(string subreddit)
+        public RedditContentDatabase(IConfiguration configuration, string subreddit)
         {
+            this.mongoClient = new MongoClient(configuration["ConnectionString"]);
             this.subreddit = subreddit;
             if (!mongoClient.GetDatabase(subreddit).ListCollections(new ListCollectionsOptions { Filter = new BsonDocument("name", commentsCollectionName) }).Any())
             {

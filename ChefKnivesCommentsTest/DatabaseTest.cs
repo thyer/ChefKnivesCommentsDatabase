@@ -1,4 +1,5 @@
 ﻿using ChefKnivesCommentsDatabase;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,8 @@ namespace ChefKnivesCommentsTest
 {
     internal class TestDatabase : RedditContentDatabase
     {
-        public TestDatabase(string subreddit) : base(subreddit) { }
+        public TestDatabase(string subreddit) 
+            : base(TestDatabase.GetTestConfiguration(), subreddit) { }
 
         protected override void UpsertIntoCollection(RedditComment comment)
         {
@@ -17,6 +19,13 @@ namespace ChefKnivesCommentsTest
         protected override void UpsertIntoCollection(RedditPost comment)
         {
             throw new Exception("UpsertIntoCollection was hit");
+        }
+
+        public static IConfiguration GetTestConfiguration()
+        {
+            return new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", false, true)
+                .Build();
         }
     }
 
