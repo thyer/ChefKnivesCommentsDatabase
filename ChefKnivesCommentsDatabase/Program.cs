@@ -18,12 +18,12 @@ namespace ChefKnivesCommentsDatabase
         static void Main()
         {
             var initialConfiguration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", false, true)
+                .AddJsonFile("appsettings.json", false, false)
                 .Build();
 
             _configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", false, true)
-                .AddJsonFile(initialConfiguration["SecretsFile"], false, true)
+                .AddJsonFile(Environment.ExpandEnvironmentVariables(initialConfiguration["SecretsFile"]), true, false)
                 .Build();
 
             RedditHttpsReader redditReader = new RedditHttpsReader(subreddit: "chefknives");
